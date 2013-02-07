@@ -2,12 +2,17 @@ ROWS = 7;
 COLS = 7;
 DESTROY_DURATION = 400;
 COLLAPSE_ANIMATION = 1000;
+ANIMATE = false;
+
+SCORE = 0;
+
 
 window.TILE = function(row, col, value) {
     this.row = row;
     this.col = col;
     this.value = value;
     this.element = $('<div class="tile"></div>');
+    this.destroyed = false;
 }
 TILE.prototype = {
     destroy: function() {
@@ -22,7 +27,13 @@ TILE.prototype = {
             tile.damage();
         });
 
-        this.element.fadeOut(DESTROY_DURATION, function() { $(this).detach(); } );
+        if (!ANIMATE) {
+            this.element.detach();
+        } else {
+            this.element.fadeOut(DESTROY_DURATION, function() { $(this).detach(); } );
+        }
+
+        this.destroyed = true;
     },
 
     damage: function() {
@@ -30,7 +41,14 @@ TILE.prototype = {
             // break it open, revealing random value
             this.value = Math.ceil(Math.random() * 7);
         }
-        if (this.value == -2) { this.value = -1; } // crack it
+        if (this.value == -2) {
+            this.value = -1;
+        } // crack it
+
+        if (ANIMATE) {
+            this.draw();
+        }
+
     },
 
     draw: function() {
@@ -50,14 +68,16 @@ TILE.prototype = {
         var _this = this;
 
         var downstairs_neighbors = jQuery.grep(tiles, function(tile) { return tile.col == _this.col && tile.row < _this.row; });
-        console.log("DS:",downstairs_neighbors);
-        if (this.row >= downstairs_neighbors.length) {
-            var new_row = this.row - downstairs_neighbors.length;
-            this.element.animate( { bottom: new_row * 31, },
-                                  COLLAPSE_ANIMATION,
-                                  function() {
-                                      _this.row = new_row;
-                                  } );
+        if (this.row > downstairs_neighbors.length) {
+            var new_row = downstairs_neighbors.length;
+
+            if (!ANIMATE) {
+                this.row = new_row;
+            } else {
+                this.element.animate( { bottom: new_row * 31, },
+                                      COLLAPSE_ANIMATION,
+                                      function() { _this.row = new_row; } );
+            }
         }
     },
 
@@ -117,6 +137,15 @@ var populate_board = function() {
             tiles.push(tile);
         }
     }
+
+    // Now, since this was randomly generated, it's possible that some of these tiles are destroyable
+    // so let's do that before the user sees them.
+    do {
+        destroyable = destroy_tiles();
+        collapse_board();
+    } while (destroyable.length > 0);
+
+
 }
 
 var draw_board = function() {
@@ -126,3 +155,19 @@ var draw_board = function() {
     });
 }
 
+var collapse_board = function() {
+    jQuery.each(tiles, function(i, tile) { tile.collapse(); } );
+}
+
+var destroy_tiles = function() {
+    // find destroyable tiles
+    destroyable = jQuery.grep(tiles, function(tile) { return tile.destroyable(); } );
+
+    // destroy destroyable tiles
+    jQuery.each(destroyable, function(i, tile) { tile.destroy(); } );
+
+    // update list of tiles
+    tiles = jQuery.grep(tiles, function(tile) { return !tile.destroyed; } );
+
+    return destroyable;
+}
