@@ -1,0 +1,49 @@
+body {
+    background-color: #c0c0c0;
+    color: #fff;
+    font-family: helvetica, verdana, arial, sans-serif;
+}
+
+div#board {
+    /* seven 30-pixel tiles, with seven borders */
+    width: 217px;
+    height: 217px;
+    margin: 0px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+div#board > div {
+    width: 30px;
+    height: 30px;
+    margin: 1px 1px 0px 0px;
+}
+
+div.cell {
+    background-color: #000;
+    float: left;
+}
+
+div.tile {
+    position: absolute;
+    text-align: center;
+}
+
+div.tile1 { background-color: green; }
+div.tile1:after { content: "1"; }
+div.tile2 { background-color: yellow; color: #000; }
+div.tile2:after { content: "2"; }
+div.tile3 { background-color: orange; }
+div.tile3:after { content: "3"; }
+div.tile4 { background-color: red; }
+div.tile4:after { content: "4"; }
+div.tile5 { background-color: purple; }
+div.tile5:after { content: "5"; }
+div.tile6 { background-color: cyan; color: #000; }
+div.tile6:after { content: "6"; }
+div.tile7 { background-color: blue; }
+div.tile7:after { content: "7"; }
+
+div.tile-2 { width: 24px !important; height: 24px !important; background-color: #909090; border: 3px solid #606060; }
+div.tile-1 { width: 24px !important; height: 24px !important; background-color: #909090; border: 3px dashed #606060; }
+
