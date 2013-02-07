@@ -4,7 +4,9 @@ DESTROY_DURATION = 400;
 COLLAPSE_ANIMATION = 1000;
 ANIMATE = false;
 
-SCORE = 0;
+LEVEL = 1; // current level
+TURNS = 5; // turns left on this level
+SCORE = 0; // user's current score
 
 
 window.TILE = function(row, col, value) {
@@ -127,8 +129,7 @@ TILE.prototype = {
 
 tiles = [];
 
-
-var populate_board = function() {
+var start_game = function() {
     tiles = [];
     for(var col = 0; col < COLS; col++) {
         var row = 0;
@@ -145,14 +146,13 @@ var populate_board = function() {
         collapse_board();
     } while (destroyable.length > 0);
 
-
-}
-
-var draw_board = function() {
+    // draw everything on the board
     jQuery("div.tile").remove();
     jQuery.each(tiles, function(i, tile) {
         tile.draw();
     });
+
+    poop_tile();
 }
 
 var collapse_board = function() {
@@ -171,3 +171,73 @@ var destroy_tiles = function() {
 
     return destroyable;
 }
+
+var poop_tile = function() {
+    // poop out a tile for us to drop
+
+    droptile = new TILE(7, 3, (Math.ceil(Math.random() * 7)));
+    droptile.draw();
+}
+
+var drop = function(col) {
+    // decrement TURNS by 1, and style
+    TURNS--;
+    $("#turns span").css("color", "#606060");
+    $("#turns span:lt(" + TURNS + ")").css("color", "#ffffff");
+
+    var downstairs_neighbors = jQuery.grep(tiles, function(tile) { return tile.col == col; });
+    var row = downstairs_neighbors.length;
+
+    // move the dropslot tile to the correct column
+    console.log("Animating column move");
+    droptile.element.animate( { left: col * 31 }, COLLAPSE_ANIMATION, function() {
+        console.log("Animating drop");
+        droptile.element.animate( { bottom: row * 31 }, COLLAPSE_ANIMATION, function() {
+            droptile.col = col;
+            droptile.row = row;
+            tiles.push(droptile);
+
+            console.log("Calculating destruction");
+            do {
+                destroyable = destroy_tiles();
+                collapse_board();
+            } while (destroyable.length > 0);
+
+            poop_tile();
+
+        });
+    });
+
+    // drop the dropslot down to the first unoccupied space
+
+
+    // if turns is zero: increment level by one, and add new row of unbroken tiles, pushing the reset up one.
+    if (TURNS == 0) {
+        LEVEL++;
+        TURNS = 5;
+    }
+
+    // Update
+    $("#turns span").css("color", "#606060");
+    $("#turns span:lt(" + TURNS + ")").css("color", "#ffffff");
+
+    $("#level").text("LEVEL " + LEVEL);
+}
+
+$(document).ready( function() {
+
+    // create backdrop
+    for(var row = ROWS-1; row >= 0; row--) {
+        for(var col = 0; col < COLS; col++) {
+            $('<div class="cell" data-col="'+col+'" data-row="'+row+'"></div>').appendTo("#board");
+        }
+    }
+
+    // attach listeners
+    $("div.cell").on('click', function() {
+        drop( $(this).data('col') );
+    });
+
+    // make rocket go now
+    start_game();
+});

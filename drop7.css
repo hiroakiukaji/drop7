@@ -4,11 +4,23 @@ body {
     font-family: helvetica, verdana, arial, sans-serif;
 }
 
+body > div {
+    width: 217px;
+    margin: 0px auto;
+}
+
+div#score {
+    font-size: 16pt;
+    text-align: right;
+}
+
+div#turns {
+    padding-top: 10px;
+}
+
 div#board {
     /* seven 30-pixel tiles, with seven borders */
-    width: 217px;
-    height: 217px;
-    margin: 0px auto;
+    height: 247px;
     position: relative;
     overflow: hidden;
 }
@@ -22,6 +34,8 @@ div#board > div {
 div.cell {
     background-color: #000;
     float: left;
+    top: 30px;
+    position: relative;
 }
 
 div.tile {
