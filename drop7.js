@@ -1,3 +1,13 @@
+/*
+TODO:
+ - the destroy-collapse cycle happens instantly, instead of waiting for things to animate out of hte way
+ - the droptile reaction should be WAY faster
+
+
+
+
+*/
+
 ROWS = 7;
 COLS = 7;
 DESTROY_DURATION = 400;
