@@ -57,6 +57,25 @@ TILE.prototype = {
     },
     destroy: function() {
         var _this = this;
+
+        // damage any nearby tiles
+        var neighbors = $.grep(tiles, function(tile) {
+            var neighbor = (tile.row == _this.row && (tile.col == _this.col+1 || tile.col == _this.col-1))
+                || (tile.col == _this.col && (tile.row == _this.row+1 || tile.row == _this.row-1));
+            var destructable = tile.val < 0;
+            return neighbor && destructable;
+        });
+
+        $.each(neighbors, function(i, tile) {
+            if (tile.val == -2) {
+                tile.val = -1;
+            } else if (tile.val == -1) {
+                tile.val = Math.ceil(Math.random() * VALUES);
+            }
+            tile.draw();
+            tile.update();
+        });
+
         tiles = $.grep(tiles, function(tile) { return tile !== _this; } );
     },
     update: function() {
