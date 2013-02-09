@@ -83,7 +83,7 @@ BOARD.prototype = {
     },
     getCollapsibleTiles: function() {
         // returns array of tiles that can be dropped down
-        return $.grep(tiles, function(tile) { return tile.collapsible(); } );
+        return $.grep(tiles, function(tile) { return tile.collapsible() > 0; } );
     },
 };
 

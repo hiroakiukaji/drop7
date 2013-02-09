@@ -12,6 +12,7 @@ LOOP:
 //   collapse tiles
 // increment turn
 // check for endgame
+
 // create droptile
 
 
@@ -23,7 +24,8 @@ VALUES = 7;
 
 ANIM_DROPTILE_HORIZONTAL = 33;
 ANIM_DROPTILE_VERTICAL = 33;
-ANIM_DESTROY = 500;
+ANIM_DESTROY = 200;
+ANIM_COLLAPSE = 33;
 
 level = 1; // current level
 turns = 5; // turns left on this level
@@ -91,12 +93,11 @@ function drop() {
     board.addTile(droptile);
 
     // animate droptile
-
     droptile.element
         .animate( { left: col * 31, }, ANIM_DROPTILE_HORIZONTAL * Math.abs(droptile.col - col))
         .animate( { bottom: row * 31, }, ANIM_DROPTILE_VERTICAL * Math.abs(droptile.row - row))
         .promise().done( function() {
-            console.log("Done animating");
+            console.log("Done animating drop");
             droptile.row = row;
             droptile.col = col;
 
@@ -105,26 +106,32 @@ function drop() {
 }
 
 function destroy_tiles(chain) {
-    if (typeof(chain) == undefined) { chain = 1; }
+    if (typeof(chain) == 'undefined') { chain = 1; }
 
     // destroy tiles
     var destroyable = board.getDestroyableTiles();
     var wait = $.Deferred();
-    var destroyed = destroyable.length;
+    var destroyed = 0;
 
-    console.log("There are", destroyable.length, "tiles waiting to be destroyed");
+    console.log("There are", destroyable.length, "tiles waiting to be destroyed in chain", chain);
+    if (destroyable.length == 0) {
+        wait.resolve();
+    }
 
     wait.progress( function(notification) {
-        console.log("Received notification! ", notification, destroyed);
-        destroyed++;
-        if (destroyed >= destroyable.length) {
+        console.log("Received notification! ", notification);
+        if (++destroyed >= destroyable.length) {
             wait.resolve();
         }
     }).done( function() {
         // if there are any collapsible tiles, call collapse_tiles
         console.log("We are done destroying tiles");
-        if (board.getCollapsibleTiles.length > 0) {
-            collapse_tiles(chain+1);
+        if (board.getCollapsibleTiles().length > 0) {
+            console.log("There exist collapsible tiles on the board.");
+            collapse_tiles(chain);
+        } else if (board.getDestroyableTiles().length > 0) {
+            console.log("There exist destroyable tiles on the board.");
+            destroy_tiles(chain+1);
         } else {
             increment_turn();
         }
@@ -142,7 +149,7 @@ function destroy_tiles(chain) {
                 // notify the Deferred object wait that we are done with a tile
                 wait.notify("Hey, tile" + tile + " is done being destroyed now");
 
-            } )
+            } );
 
     });
 
@@ -150,16 +157,49 @@ function destroy_tiles(chain) {
 }
 
 function collapse_tiles(chain) {
-    if (typeof(chain) == undefined) { chain = 1; }
+    if (typeof(chain) == 'undefined') { chain = 1; }
 
     // collapse tiles
+    var collapsible = board.getCollapsibleTiles();
+    var wait = $.Deferred();
+    var collapsed = 0;
 
-    // if there are any destroyable tiles, call destroy_tiles
-    if (board.getDestroyableTiles.length > 0) {
-        destroy_tiles(chain+1);
-    } else {
-        increment_turn();
+    console.log("There are", collapsible.length, "tiles waiting to be collapsed in chain", chain);
+    if (collapsible.length == 0) {
+        wait.resolve();
     }
+
+    wait.progress( function(notification) {
+        console.log("Received notification! ", notification);
+        if (++collapsed >= collapsible.length) {
+            wait.resolve();
+        }
+    }).done( function() {
+        // if there are any collapsible tiles, call collapse_tiles
+        console.log("We are done collapsing tiles");
+        if (board.getDestroyableTiles().length > 0) {
+            console.log("There exist destroyable tiles on the board.");
+            destroy_tiles(chain+1);
+        } else {
+            increment_turn();
+        }
+    } );
+
+
+    $.each(collapsible, function(i, tile) {
+        // animate this tile's collapse
+        var distance = tile.collapsible();
+        var row = tile.row - distance;
+        tile.element
+            .animate( { bottom: row * 31, }, ANIM_COLLAPSE * distance )
+            .promise()
+            .done( function() {
+                // update the tile's new row
+                tile.row = row;
+                // notify the Deferred object wait that we are done with a tile
+                wait.notify("Hey, tile" + tile + " is done being collapsed now");
+            } );
+    });
 }
 
 function increment_turn() {
