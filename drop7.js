@@ -1,8 +1,5 @@
 /*
 TODO:
- - prevent player from clicking while a drop is happening
-
-
 
 
 LOOP:
@@ -73,21 +70,35 @@ function create_droptile() {
 
 function allow_clicks() {
     $('div.cell').on('click', drop);
+    $('div.tile').on('click', drop);
 }
 function forbid_clicks() {
     $('div.cell').off('click');
+    $('div.tile').off('click');
 }
 
 function drop() {
     forbid_clicks();
 
     var col = $(this).data('col');
-    var row = board.getColumnHeight(col);
+    var row = $(this).data('row');
+    var destination = board.getColumnHeight(col);
 
-    console.log("Player clicked on column", $(this).data('col'), 'will be shoving into', row);
+    // did player click on the drop tile itself?
+    if (row == ROWS) {
+        console.log("Player clicked on the drop tile itself",this,"so ignore.");
+        allow_clicks();
+        return;
+    }
+
+    console.log("Player clicked on column", col, 'will be shoving into', destination);
 
     // is column full?
-    if (row > ROWS) { allow_clicks(); return; }
+    if (destination >= ROWS) {
+        console.log("Column",col,"is full.");
+        allow_clicks();
+        return;
+    }
 
     // Place droptile onto the board
     board.addTile(droptile);
@@ -95,11 +106,12 @@ function drop() {
     // animate droptile
     droptile.element
         .animate( { left: col * 31, }, ANIM_DROPTILE_HORIZONTAL * Math.abs(droptile.col - col))
-        .animate( { bottom: row * 31, }, ANIM_DROPTILE_VERTICAL * Math.abs(droptile.row - row))
+        .animate( { bottom: destination * 31, }, ANIM_DROPTILE_VERTICAL * Math.abs(droptile.row - destination))
         .promise().done( function() {
             console.log("Done animating drop");
-            droptile.row = row;
+            droptile.row = destination;
             droptile.col = col;
+            droptile.update();
 
             destroy_tiles();
         });
@@ -196,6 +208,8 @@ function collapse_tiles(chain) {
             .done( function() {
                 // update the tile's new row
                 tile.row = row;
+                // update HTML element data
+                tile.update();
                 // notify the Deferred object wait that we are done with a tile
                 wait.notify("Hey, tile" + tile + " is done being collapsed now");
             } );

@@ -59,6 +59,9 @@ TILE.prototype = {
         var _this = this;
         tiles = $.grep(tiles, function(tile) { return tile !== _this; } );
     },
+    update: function() {
+        this.element.data( { row: this.row, col: this.col, } );
+    },
 };
 
 BOARD = function() { };
