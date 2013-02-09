@@ -24,11 +24,13 @@ VALUES = 7;
 
 SCORES = [7, 39, 109, 224, 391, 617, 907, 1267, 1701, 2213, 2809, 3491, 4265, 5133, 6099, 7168, 8341, 9622, 11014, 12521, 14146, 15891, 17758, 19752, 21875, 24128, 26515, 29039, 31702, 34506]
 CLEAR_BONUS = 70000;
+LEVEL_BONUS = 17000;
 
 ANIM_DROPTILE_HORIZONTAL = 33;
 ANIM_DROPTILE_VERTICAL = 33;
 ANIM_DESTROY = 200;
 ANIM_COLLAPSE = 33;
+ANIM_MOVEUP = 200;
 
 level = 1; // current level
 turns = 5; // turns left on this level
@@ -137,10 +139,7 @@ function destroy_tiles(chain) {
     }
 
     wait.progress( function(notification) {
-        console.log("Received notification! ", notification);
-        if (++destroyed >= destroyable.length) {
-            wait.resolve();
-        }
+        if (++destroyed >= destroyable.length) { wait.resolve(); }
     }).done( function() {
         // if there are any collapsible tiles, call collapse_tiles
         console.log("We are done destroying tiles");
@@ -151,6 +150,7 @@ function destroy_tiles(chain) {
             console.log("There exist destroyable tiles on the board.");
             destroy_tiles(chain+1);
         } else {
+            console.log("Incrementing turn.");
             increment_turn();
         }
     } );
@@ -166,7 +166,7 @@ function destroy_tiles(chain) {
 
                 // increment the score
                 score += SCORES[chain];
-                update_score();
+                update_ui();
 
                 // notify the Deferred object wait that we are done with a tile
                 wait.notify("Hey, tile" + tile + " is done being destroyed now");
@@ -192,10 +192,7 @@ function collapse_tiles(chain) {
     }
 
     wait.progress( function(notification) {
-        console.log("Received notification! ", notification);
-        if (++collapsed >= collapsible.length) {
-            wait.resolve();
-        }
+        if (++collapsed >= collapsible.length) { wait.resolve(); }
     }).done( function() {
         // if there are any collapsible tiles, call collapse_tiles
         console.log("We are done collapsing tiles");
@@ -203,10 +200,10 @@ function collapse_tiles(chain) {
             console.log("There exist destroyable tiles on the board.");
             destroy_tiles(chain+1);
         } else {
+            console.log("Incrementing turn.");
             increment_turn();
         }
     } );
-
 
     $.each(collapsible, function(i, tile) {
         // animate this tile's collapse
@@ -227,26 +224,78 @@ function collapse_tiles(chain) {
 }
 
 function increment_turn() {
-    // TODO
-
-    // increment turn
-    
-
     // if board is empty, award bonus
     if (tiles.length == 0) {
         score += CLEAR_BONUS;
-        update_score();
     }
-    // if end of level reached, increase level
-    // check for endgame condition
-    // create droptile
-    create_droptile();
+
+    // decrement turn
+    turns--;
+
+    if (turns > 0) {
+        update_ui();
+        create_droptile();
+    } else {
+        // if end of level reached, increase level
+        level++;
+        turns = 5;
+        score += LEVEL_BONUS;
+        update_ui();
+
+        // add tiles
+        for(var col = 0; col < COLS; col++) {
+            board.addTile(new TILE(-1, col, -2));
+        }
+
+        // animate all tiles upward
+        var wait = $.Deferred();
+        var moved = 0;
+
+        $.each(tiles, function(i, tile) {
+            tile.draw();
+            tile.element
+                .animate( { bottom: (tile.row + 1) * 31, }, ANIM_MOVEUP)
+                .promise()
+                .done( function() {
+                    // update the tile's new row
+                    tile.row++;
+                    // update HTML element data
+                    tile.update();
+                    // notify the Deferred object wait that we are done with a tile
+                    wait.notify("Hey, tile" + tile + " is done being moved up now");
+                });
+        });
+
+        wait.progress( function(notification) {
+            if (++moved >= tiles.length) { wait.resolve(); }
+        }).done( function() {
+            console.log("We are done moving tiles up");
+
+            // check for endgame condition
+            for(var col = 0; col < COLS; col++) {
+                if (board.getColumnHeight(col) > COLS) {
+                    return game_over();
+                }
+            }
+
+            // create droptile
+            create_droptile();
+
+        } );
+    }
 }
 
-function update_score() {
+function update_ui() {
     $("div#score").text(score);
+    $("div#level").text("Level " + level);
+    $("div#turns span").css("color", "black");
+    $("div#turns span:lt(" + turns + ")").css("color", "white");
 }
 
+function game_over() {
+    forbid_clicks();
+    alert("Game over, yo.");
+}
 
 
 
