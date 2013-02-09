@@ -41,6 +41,7 @@ div.cell {
 div.tile {
     position: absolute;
     text-align: center;
+    border-radius: 15px;
 }
 
 div.tile1 { background-color: green; }
