@@ -9,6 +9,14 @@ body > div {
     margin: 0px auto;
 }
 
+div#board {
+    /* seven 30-pixel tiles, with seven borders */
+    height: 247px;
+    position: relative;
+    overflow: hidden;
+}
+
+
 div#score {
     font-size: 16pt;
     text-align: right;
@@ -16,13 +24,6 @@ div#score {
 
 div#turns {
     padding-top: 10px;
-}
-
-div#board {
-    /* seven 30-pixel tiles, with seven borders */
-    height: 247px;
-    position: relative;
-    overflow: hidden;
 }
 
 div#board > div {
@@ -61,3 +62,34 @@ div.tile7:after { content: "7"; }
 
 div.tile-2 { width: 24px !important; height: 24px !important; background-color: #909090; border: 3px solid #606060; }
 div.tile-1 { width: 24px !important; height: 24px !important; background-color: #909090; border: 3px dashed #606060; }
+
+table#game_over {
+    display: none;
+    font-size: 10pt;
+}
+table#game_over th {
+    font-weight: normal;
+    text-align: right;
+}
+table#game_over td {
+    font-weight: bold;
+    text-align: left;
+}
+table#game_over tr#new_average td span.up {
+    float: right;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid green;
+}
+table#game_over tr#new_average td span.down {
+    float: right;
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid red;
+}
+
+
