@@ -100,16 +100,16 @@ function drop() {
 
     // did player click on the drop tile itself?
     if (row == ROWS) {
-        console.log("Player clicked on the drop tile itself",this,"so ignore.");
+        //console.log("Player clicked on the drop tile itself",this,"so ignore.");
         allow_clicks();
         return;
     }
 
-    console.log("Player clicked on column", col, 'will be shoving into', destination);
+    //console.log("Player clicked on column", col, 'will be shoving into', destination);
 
     // is column full?
     if (destination >= ROWS) {
-        console.log("Column",col,"is full.");
+        //console.log("Column",col,"is full.");
         allow_clicks();
         return;
     }
@@ -122,7 +122,7 @@ function drop() {
         .animate( { left: col * 31, }, ANIM_DROPTILE_HORIZONTAL * Math.abs(droptile.col - col))
         .animate( { bottom: destination * 31, }, ANIM_DROPTILE_VERTICAL * Math.abs(droptile.row - destination))
         .promise().done( function() {
-            console.log("Done animating drop");
+            //console.log("Done animating drop");
             droptile.row = destination;
             droptile.col = col;
             droptile.update();
@@ -139,7 +139,7 @@ function destroy_tiles(no_increment) {
     var wait = $.Deferred();
     var destroyed = 0;
 
-    console.log("There are", destroyable.length, "tiles waiting to be destroyed in chain", chain);
+    //console.log("There are", destroyable.length, "tiles waiting to be destroyed in chain", chain);
     if (destroyable.length == 0) {
         wait.resolve();
     }
@@ -151,24 +151,24 @@ function destroy_tiles(no_increment) {
         // if there are any destroyable tiles, call destroy_tiles
         // otherwise, increment turn.
 
-        console.log("We are done destroying tiles");
+        //console.log("We are done destroying tiles");
         if (destroyable.length > 0) {
             // some tiles were destroyed; increment chain
             chain++;
         }
 
         if (board.getCollapsibleTiles().length > 0) {
-            console.log("There exist collapsible tiles on the board.");
+            //console.log("There exist collapsible tiles on the board.");
             collapse_tiles(no_increment);
         } else if (board.getDestroyableTiles().length > 0) {
-            console.log("There exist destroyable tiles on the board.");
+            //console.log("There exist destroyable tiles on the board.");
             destroy_tiles(no_increment);
         } else if (no_increment) {
             // we are just checking for destruction after a level increase
-            console.log("Creating a new droptile after level increment");
+            //console.log("Creating a new droptile after level increment");
             create_droptile();
         } else {
-            console.log("Incrementing turn.");
+            //console.log("Incrementing turn.");
             increment_turn();
         }
     } );
@@ -183,7 +183,7 @@ function destroy_tiles(no_increment) {
                 tile.destroy();
 
                 // increment the score
-                console.log("Incrementing score by", SCORES[chain],"for chain",chain);
+                //console.log("Incrementing score by", SCORES[chain],"for chain",chain);
                 score += SCORES[chain];
                 update_ui();
 
@@ -205,7 +205,7 @@ function collapse_tiles(no_increment) {
     var wait = $.Deferred();
     var collapsed = 0;
 
-    console.log("There are", collapsible.length, "tiles waiting to be collapsed in chain", chain);
+    //console.log("There are", collapsible.length, "tiles waiting to be collapsed in chain", chain);
     if (collapsible.length == 0) {
         wait.resolve();
     }
@@ -214,16 +214,16 @@ function collapse_tiles(no_increment) {
         if (++collapsed >= collapsible.length) { wait.resolve(); }
     }).done( function() {
         // if there are any collapsible tiles, call collapse_tiles
-        console.log("We are done collapsing tiles");
+        //console.log("We are done collapsing tiles");
         if (board.getDestroyableTiles().length > 0) {
-            console.log("There exist destroyable tiles on the board.");
+            //console.log("There exist destroyable tiles on the board.");
             destroy_tiles(no_increment);
         } else if (no_increment) {
             // we are just checking for destruction after a level increase
-            console.log("Creating a new droptile after level increment");
+            //console.log("Creating a new droptile after level increment");
             create_droptile();
         } else {
-            console.log("Incrementing turn.");
+            //console.log("Incrementing turn.");
             increment_turn();
         }
     } );
@@ -292,7 +292,7 @@ function increment_turn() {
         wait.progress( function(notification) {
             if (++moved >= tiles.length) { wait.resolve(); }
         }).done( function() {
-            console.log("We are done moving tiles up");
+            //console.log("We are done moving tiles up");
 
             // check for endgame condition
             for(var col = 0; col < COLS; col++) {
