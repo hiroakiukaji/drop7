@@ -1,0 +1,3 @@
+sed -e "s/# Revision .*/# Revision $RANDOM/" -i "" drop7.manifest
+git add drop7.manifest
+
