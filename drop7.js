@@ -8,6 +8,8 @@ TODO:
  - sometimes clicks on the board don't register
  - maybe make the #board element catch clicks, and calculate the position?
  - "Chain 2x" indicator
+ - BUG - when there's still turns left, but the board is filled up, game doesn't realize it's a "game over" condition
+  - to properly test this, need to add some functions that alow me to populate a board with custom tiles.
 
 LOOP:
 // drop tile
@@ -154,6 +156,11 @@ function drop() {
 
             destroy_tiles();
         });
+
+    // IF we just occupied the last slot on the board, game over.
+    if (board.isFull()) {
+        game_over();
+    }
 }
 
 function destroy_tiles(no_increment) {

@@ -107,5 +107,8 @@ BOARD.prototype = {
         // returns array of tiles that can be dropped down
         return $.grep(tiles, function(tile) { return tile.collapsible() > 0; } );
     },
+    isFull: function() {
+        return tiles.length == ROWS * COLS;
+    }
 };
 
