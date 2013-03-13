@@ -10,6 +10,7 @@ TODO:
  - "Chain 2x" indicator
  - BUG - when there's still turns left, but the board is filled up, game doesn't realize it's a "game over" condition
   - to properly test this, need to add some functions that alow me to populate a board with custom tiles.
+ - remove tiles that are gone from the DOM
 
 LOOP:
 // drop tile
@@ -46,6 +47,7 @@ ANIM_DROPTILE_VERTICAL = 33;
 ANIM_DESTROY = 200;
 ANIM_COLLAPSE = 33;
 ANIM_MOVEUP = 200;
+ANIM_SCOREFLOAT = 1000;
 
 function reset() {
     level = 1; // current level
@@ -207,6 +209,19 @@ function destroy_tiles(no_increment) {
     } );
 
     $.each(destroyable, function(i, tile) {
+        // animate a floating-upward score
+        var floating_score = $("<div></div>")
+            .addClass('floating_score')
+            .html(score)
+            .appendTo("#board")
+            .css('left', tile.element.css('left'))
+            .css('bottom', tile.element.css('bottom'))
+            .animate( { bottom: '+=50', opacity: 0, }, ANIM_SCOREFLOAT )
+            .promise()
+            .done( function() {
+                $(this).remove();
+            });
+
         // animate this tile's destruction
         tile.element
             .animate( { width: '+=10', height: '+=10', left: '-=5', bottom: '-=5', }, ANIM_DESTROY )

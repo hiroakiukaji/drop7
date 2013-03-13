@@ -64,6 +64,13 @@ div.tile7:after { content: "7"; }
 div.tile-2 { width: 24px !important; height: 24px !important; background-color: #909090; border: 3px solid #606060; }
 div.tile-1 { width: 24px !important; height: 24px !important; background-color: #909090; border: 3px dashed #606060; }
 
+div.floating_score {
+    text-align: center;
+    position: absolute;
+    background: transparent;
+    color: #fff;
+}
+
 table#game_over {
     display: none;
     font-size: 10pt;

@@ -76,6 +76,7 @@ TILE.prototype = {
             tile.update();
         });
 
+        this.element.remove();
         tiles = $.grep(tiles, function(tile) { return tile !== _this; } );
     },
     update: function() {
