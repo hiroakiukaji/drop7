@@ -212,7 +212,7 @@ function destroy_tiles(no_increment) {
         // animate a floating-upward score
         var floating_score = $("<div></div>")
             .addClass('floating_score')
-            .html(score)
+            .html(SCORES[chain])
             .appendTo("#board")
             .css('left', tile.element.css('left'))
             .css('bottom', tile.element.css('bottom'))
