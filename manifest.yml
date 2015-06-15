@@ -1,0 +1,6 @@
+---
+applications:
+- name: drop7
+  buildpack: https://github.com/cloudfoundry/staticfile-buildpack
+  memory: 4M
+  disk_quota: 16M
